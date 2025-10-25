@@ -1,0 +1,22 @@
+services:
+  db:
+    container_name: resumequill_db_prod
+    env_file:
+      - .env
+  app:
+    container_name: resumequill_app_prod
+    restart: unless-stopped
+    build: .
+    ports:
+      - "8080:8080"
+    env_file:
+      - .env
+    environment:
+      DB_URL: ${DB_URL}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRATION: ${JWT_EXPIRATION}
+    depends_on:
+      db:
+        condition: service_healthy
