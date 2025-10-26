@@ -31,4 +31,8 @@ public class UsersService {
   public void updateUser(UserModel user) {
     userDao.update(user);
   }
+
+  public void updateLang(int userId, String lang) {
+    userDao.updateLang(userId, lang);
+  }
 }

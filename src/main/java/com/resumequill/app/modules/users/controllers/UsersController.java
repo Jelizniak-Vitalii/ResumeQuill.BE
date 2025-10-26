@@ -1,13 +1,13 @@
 package com.resumequill.app.modules.users.controllers;
 
 import com.resumequill.app.modules.auth.guards.AuthGuard;
+import com.resumequill.app.modules.users.dto.UserChangeLangDto;
 import com.resumequill.app.modules.users.models.UserModel;
 import com.resumequill.app.modules.users.services.UsersService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestAttribute;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 @AuthGuard
 @Controller
@@ -22,5 +22,15 @@ public class UsersController {
   @GetMapping
   public ResponseEntity<UserModel> get(@RequestAttribute("userId") int userId) {
     return ResponseEntity.ok(usersService.getUserById(userId));
+  }
+
+  @PostMapping("/changeLang")
+  public ResponseEntity<Void> changeLang(
+    @RequestAttribute("userId") int userId,
+    @Valid @RequestBody UserChangeLangDto userChangeLangDto
+  ) {
+    usersService.updateLang(userId, userChangeLangDto.getLang());
+
+    return ResponseEntity.noContent().build();
   }
 }
