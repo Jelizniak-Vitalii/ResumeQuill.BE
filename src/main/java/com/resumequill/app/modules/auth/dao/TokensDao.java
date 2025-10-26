@@ -54,9 +54,9 @@ public class TokensDao {
     return jdbcTemplate.update(sql, id);
   }
 
-  public int deleteByToken(String token) {
-    String sql = "DELETE FROM sessions WHERE token = ?";
-    return jdbcTemplate.update(sql, token);
+  public int deleteByToken(String token, int userId) {
+    String sql = "DELETE FROM sessions WHERE token = ? AND user_id = ?";
+    return jdbcTemplate.update(sql, UUID.fromString(token), userId);
   }
 
   public int deleteByUserId(int user_id) {

@@ -4,6 +4,7 @@ import com.resumequill.app.common.constants.Messages;
 import com.resumequill.app.common.exceptions.UnauthorizedException;
 import com.resumequill.app.modules.auth.constants.AuthConstants;
 import com.resumequill.app.modules.auth.dto.AuthResponseDto;
+import com.resumequill.app.modules.auth.guards.AuthGuard;
 import com.resumequill.app.modules.auth.utils.CookieUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -78,15 +79,17 @@ public class AuthController {
     return ResponseEntity.noContent().build();
   }
 
+  @AuthGuard
   @PostMapping("/logout")
   public ResponseEntity<Void> logout(
     HttpServletRequest req,
-    HttpServletResponse res
+    HttpServletResponse res,
+    @RequestAttribute("userId") int userId
   ) {
     String refreshToken = CookieUtils.getCookieValue(req, AuthConstants.REFRESH_TOKEN);
 
     if (refreshToken != null) {
-      authService.logout(refreshToken);
+      authService.logout(refreshToken, userId);
     }
 
     authService.clearCookie(res);

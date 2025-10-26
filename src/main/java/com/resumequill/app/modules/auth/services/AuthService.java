@@ -104,17 +104,17 @@ public class AuthService {
   }
 
   @Transactional
-  public void logout(String token) {
+  public void logout(String token, int userId) {
     logger.error("Logging out token: {}", token);
 
-    tokensDao.deleteByToken(token);
+    tokensDao.deleteByToken(token, userId);
   }
 
   @Transactional
   public AuthResponseDto refreshToken(String token, String ip, String userAgent) {
     RefreshToken refreshToken = validateRefreshToken(token);
 
-    tokensDao.deleteByToken(token);
+    tokensDao.deleteByToken(token, refreshToken.getUserId());
 
     String accessToken = tokenService.createAccessToken(refreshToken.getUserId());
     RefreshToken newRefreshToken = tokenService.createRefreshToken(refreshToken.getUserId(), ip, userAgent);
