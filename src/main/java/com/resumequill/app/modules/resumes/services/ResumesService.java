@@ -6,6 +6,8 @@ import com.resumequill.app.modules.resumes.dto.CreateResumeDto;
 import com.resumequill.app.modules.resumes.models.ResumeModel;
 import com.resumequill.app.modules.users.models.UserModel;
 import com.resumequill.app.modules.users.services.UsersService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -13,6 +15,7 @@ import java.util.List;
 
 @Service
 public class ResumesService {
+  private final Logger logger = LoggerFactory.getLogger(ResumesService.class);
   private final ResumesDao resumesDao;
   private final UsersService usersService;
 
@@ -32,7 +35,11 @@ public class ResumesService {
       throw new IllegalStateException("User with id " + userId + " does not exist");
     }
 
-    return resumesDao.create(userId, data.getData().toString());
+    ResumeModel resumeModel = resumesDao.create(userId, data.getData().toString());
+
+    logger.info("Creating resume for user id: {}, resumeId: {}", user.getEmail(), resumeModel.getId());
+
+    return resumeModel;
   }
 
   @Transactional
@@ -50,6 +57,8 @@ public class ResumesService {
   public void updateResume(int userId, int resumeId, String data) {
     int updated = resumesDao.updateData(userId, resumeId, data);
 
+    logger.info("Updating resume for user id: {}, resumeId: {}", userId, resumeId);
+
     if (updated == 0) {
       throw new NotFoundException("Resume with id " + resumeId + " does not exist");
     }
@@ -58,6 +67,9 @@ public class ResumesService {
   @Transactional
   public void deleteResume(int userId, int resumeId) {
     int rows = resumesDao.delete(userId, resumeId);
+
+    logger.info("Deleting resume for user id: {}, resumeId: {}", userId, resumeId);
+
     if (rows == 0) {
       throw new NotFoundException("Resume with id " + resumeId + " does not exist");
     }

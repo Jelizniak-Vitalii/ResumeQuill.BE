@@ -4,11 +4,12 @@ import com.resumequill.app.common.constants.Messages;
 import com.resumequill.app.common.exceptions.UnauthorizedException;
 import com.resumequill.app.modules.auth.constants.AuthConstants;
 import com.resumequill.app.modules.auth.dto.AuthResponseDto;
-import com.resumequill.app.modules.auth.guards.AuthGuard;
 import com.resumequill.app.modules.auth.utils.CookieUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -20,6 +21,7 @@ import com.resumequill.app.modules.auth.services.AuthService;
 @Controller
 @RequestMapping("/auth")
 public class AuthController {
+  private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
   private final AuthService authService;
 
   public AuthController(AuthService authService) {
@@ -66,7 +68,9 @@ public class AuthController {
     String refreshToken = CookieUtils.getCookieValue(req, AuthConstants.REFRESH_TOKEN);
 
     if (refreshToken == null) {
-      throw new UnauthorizedException(Messages.AUTH_INVALID_TOKEN);
+      logger.error("No refresh token found in cookie");
+
+      throw new UnauthorizedException(Messages.AUTH_PERMISSION_UNAUTHORIZED);
     }
 
     String ip = authService.getClientIp(req);
@@ -79,17 +83,16 @@ public class AuthController {
     return ResponseEntity.noContent().build();
   }
 
-  @AuthGuard
+//  @AuthGuard
   @PostMapping("/logout")
   public ResponseEntity<Void> logout(
     HttpServletRequest req,
-    HttpServletResponse res,
-    @RequestAttribute("userId") int userId
+    HttpServletResponse res
   ) {
     String refreshToken = CookieUtils.getCookieValue(req, AuthConstants.REFRESH_TOKEN);
 
     if (refreshToken != null) {
-      authService.logout(refreshToken, userId);
+      authService.logout(refreshToken);
     }
 
     authService.clearCookie(res);

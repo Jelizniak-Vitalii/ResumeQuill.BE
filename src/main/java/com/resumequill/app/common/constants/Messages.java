@@ -1,8 +1,10 @@
 package com.resumequill.app.common.constants;
 
 public class Messages {
+  public static final String AUTH_PERMISSION_UNAUTHORIZED = "You are not authorized to access this resource";
   public static final String AUTH_PERMISSION_FORBIDDEN = "You do not have permission to access this resource";
   public static final String AUTH_INVALID_TOKEN = "Invalid or missing token";
+  public static final String AUTH_MISSING_TOKEN = "Missing token";
   public static final String AUTH_INVALID_CREDENTIALS = "Invalid credentials";
   public static final String USER_CREATED = "User created successfully";
   public static final String USER_NOT_FOUND = "User not found";

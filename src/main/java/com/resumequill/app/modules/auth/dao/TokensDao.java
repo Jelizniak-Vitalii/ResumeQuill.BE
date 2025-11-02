@@ -46,7 +46,7 @@ public class TokensDao {
 
   public Optional<RefreshToken> findByToken(String token) {
     String sql = "SELECT * FROM sessions WHERE token = ? LIMIT 1 FOR UPDATE NOWAIT";
-    return jdbcTemplate.query(sql, mapper, token).stream().findFirst();
+    return jdbcTemplate.query(sql, mapper, UUID.fromString(token)).stream().findFirst();
   }
 
   public int deleteById(int id) {
@@ -54,9 +54,9 @@ public class TokensDao {
     return jdbcTemplate.update(sql, id);
   }
 
-  public int deleteByToken(String token, int userId) {
-    String sql = "DELETE FROM sessions WHERE token = ? AND user_id = ?";
-    return jdbcTemplate.update(sql, UUID.fromString(token), userId);
+  public int deleteByToken(String token) {
+    String sql = "DELETE FROM sessions WHERE token = ?";
+    return jdbcTemplate.update(sql, UUID.fromString(token));
   }
 
   public int deleteByUserId(int user_id) {

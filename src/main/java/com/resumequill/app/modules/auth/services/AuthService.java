@@ -2,7 +2,6 @@ package com.resumequill.app.modules.auth.services;
 
 import com.resumequill.app.common.constants.Messages;
 import com.resumequill.app.common.exceptions.UnauthorizedException;
-import com.resumequill.app.common.handlers.GlobalExceptionHandler;
 import com.resumequill.app.modules.auth.constants.AuthConstants;
 import com.resumequill.app.modules.auth.dao.TokensDao;
 import com.resumequill.app.modules.auth.dto.AuthResponseDto;
@@ -24,7 +23,7 @@ import java.util.Optional;
 
 @Service
 public class AuthService {
-  private final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
+  private final Logger logger = LoggerFactory.getLogger(AuthService.class);
   private final PasswordEncoder passwordEncoder;
   private final TokenService tokenService;
   private final UsersService usersService;
@@ -44,12 +43,15 @@ public class AuthService {
 
   private RefreshToken validateRefreshToken(String token) {
     RefreshToken refreshToken = tokensDao.findByToken(token)
-      .orElseThrow(() -> new UnauthorizedException(Messages.AUTH_INVALID_TOKEN));
+      .orElseThrow(() -> {
+        logger.error("Invalid refresh token used: {}", token);
+        return new UnauthorizedException(Messages.AUTH_PERMISSION_UNAUTHORIZED);
+      });
 
     if (refreshToken.getExpiresAt().isBefore(Instant.now())) {
       logger.error("Expired refresh token used: {}", token);
 
-      throw new UnauthorizedException(Messages.AUTH_INVALID_TOKEN);
+      throw new UnauthorizedException(Messages.AUTH_PERMISSION_UNAUTHORIZED);
     }
 
     return refreshToken;
@@ -104,17 +106,17 @@ public class AuthService {
   }
 
   @Transactional
-  public void logout(String token, int userId) {
+  public void logout(String token) {
     logger.error("Logging out token: {}", token);
 
-    tokensDao.deleteByToken(token, userId);
+    tokensDao.deleteByToken(token);
   }
 
   @Transactional
   public AuthResponseDto refreshToken(String token, String ip, String userAgent) {
     RefreshToken refreshToken = validateRefreshToken(token);
 
-    tokensDao.deleteByToken(token, refreshToken.getUserId());
+    tokensDao.deleteByToken(token);
 
     String accessToken = tokenService.createAccessToken(refreshToken.getUserId());
     RefreshToken newRefreshToken = tokenService.createRefreshToken(refreshToken.getUserId(), ip, userAgent);
@@ -139,19 +141,11 @@ public class AuthService {
     return xfHeader.split(",")[0];
   }
 
-  public void setAccessCookie(
-    HttpServletResponse res,
-    String name,
-    String value
-  ) {
+  public void setAccessCookie(HttpServletResponse res, String name, String value) {
     CookieUtils.addCookie(res, name, value, AuthConstants.ACCESS_TTL_SEC, "Lax");
   }
 
-  public void setRefreshCookie(
-    HttpServletResponse res,
-    String name,
-    String value
-  ) {
+  public void setRefreshCookie(HttpServletResponse res, String name, String value) {
     CookieUtils.addCookie(res, name, value, AuthConstants.REFRESH_TTL_SEC, "Strict");
   }
 

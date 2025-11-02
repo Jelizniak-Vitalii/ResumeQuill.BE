@@ -1,13 +1,11 @@
 package com.resumequill.app.modules.auth.interceptors;
 
-import com.resumequill.app.common.handlers.GlobalExceptionHandler;
 import com.resumequill.app.modules.auth.constants.AuthConstants;
 import com.resumequill.app.modules.auth.guards.AuthGuard;
 import com.resumequill.app.common.constants.Messages;
 import com.resumequill.app.common.exceptions.UnauthorizedException;
 import com.resumequill.app.modules.auth.services.TokenService;
 import com.resumequill.app.modules.auth.utils.CookieUtils;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
@@ -18,7 +16,7 @@ import org.springframework.web.servlet.HandlerInterceptor;
 
 @Component
 public class JwtInterceptor implements HandlerInterceptor {
-  private static final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
+  private static final Logger logger = LoggerFactory.getLogger(JwtInterceptor.class);
   private final TokenService tokenService;
 
   public JwtInterceptor(TokenService tokenService) {
@@ -37,7 +35,7 @@ public class JwtInterceptor implements HandlerInterceptor {
   @Override
   public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
     if ("OPTIONS".equalsIgnoreCase(request.getMethod())) return true; // CORS preflight
-    logger.info("🔍 JwtInterceptor: Checking JWT for request - " + request.getRequestURI());
+    logger.info("JwtInterceptor: Checking JWT for request - {}", request.getRequestURI());
 
     if (!(handler instanceof HandlerMethod method)) {
       return true;
@@ -53,7 +51,9 @@ public class JwtInterceptor implements HandlerInterceptor {
     String token = resolveToken(request);
 
     if (token == null || !tokenService.validateToken(token)) {
-      throw new UnauthorizedException(Messages.AUTH_INVALID_TOKEN);
+      logger.error("Invalid JWT token used in request - {}", request.getRequestURI());
+
+      throw new UnauthorizedException(Messages.AUTH_PERMISSION_UNAUTHORIZED);
     }
 
     request.setAttribute("userId", tokenService.extractUserId(token));

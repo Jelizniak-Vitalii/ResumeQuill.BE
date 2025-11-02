@@ -39,12 +39,12 @@ public class ResumesController {
   @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
   public ResponseEntity<ResumeModel> create(@RequestAttribute("userId") int userId, @Valid @RequestBody CreateResumeDto data) {
     ResumeModel resume = resumesService.createResume(userId, data);
-    return ResponseEntity.created(URI.create("/resumes/" + resume.getId())).body(resume);
+    return ResponseEntity.ok(resume);
   }
 
   @PutMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
   public ResponseEntity<Void> update(@RequestAttribute("userId") int userId, @Valid @RequestBody UpdateResumeDto data) {
-    resumesService.updateResume(userId, data.getId(), data.getData().toString());
+    resumesService.updateResume(userId, data.getId(), data.getData());
     return ResponseEntity.noContent().build();
   }
 
