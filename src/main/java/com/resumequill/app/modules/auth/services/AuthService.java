@@ -64,7 +64,7 @@ public class AuthService {
     if (user == null || !passwordEncoder.matches(password, user.getPassword())) {
       logger.error("Invalid login attempt for email: {}", email);
 
-      throw new IllegalStateException(Messages.AUTH_INVALID_CREDENTIALS);
+      throw new UnauthorizedException(Messages.AUTH_INVALID_CREDENTIALS);
     }
 
     String accessToken = tokenService.createAccessToken(user.getId());
@@ -84,7 +84,7 @@ public class AuthService {
     if (user != null) {
       logger.error("Attempt to register with existing email: {}", registrationDto.getEmail());
 
-      throw new IllegalStateException(String.format(Messages.USER_EMAIL_ALREADY_EXISTS, registrationDto.getEmail()));
+      throw new UnauthorizedException(String.format(Messages.USER_EMAIL_ALREADY_EXISTS, registrationDto.getEmail()));
     }
 
     UserModel candidate = new UserModel();
