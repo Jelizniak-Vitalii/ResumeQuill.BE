@@ -250,6 +250,7 @@
             <configuration>
               <createDependencyReducedPom>true</createDependencyReducedPom>
               <transformers>
+                <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                   <mainClass>com.resumequill.app.ResumeQuillApplication</mainClass>
                 </transformer>
