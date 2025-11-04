@@ -27,7 +27,7 @@ public class WebConfig implements WebMvcConfigurer {
 
   @Override
   public void configurePathMatch(PathMatchConfigurer configurer) {
-    configurer.addPathPrefix("/api", clazz ->
+    configurer.addPathPrefix("/api/v2", clazz ->
       !clazz.isAnnotationPresent(NoApiPrefix.class)
     );
   }
@@ -49,7 +49,7 @@ public class WebConfig implements WebMvcConfigurer {
   @Override
   public void addInterceptors(InterceptorRegistry registry) {
     registry.addInterceptor(jwtInterceptor)
-      .addPathPatterns("/api/**")
+      .addPathPatterns("/api/v2/**")
       .excludePathPatterns("/public/**");
 
 //    registry.addInterceptor(roleInterceptor)
