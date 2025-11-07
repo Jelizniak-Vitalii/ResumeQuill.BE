@@ -5,6 +5,7 @@ services:
       - .env
   app:
     container_name: resumequill_app_prod
+    image: resume-quill-be:prod
     restart: unless-stopped
     build: .
     ports:

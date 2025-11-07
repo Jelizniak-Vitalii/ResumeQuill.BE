@@ -7,6 +7,7 @@ services:
       - .env.dev
 #  app:
 #    container_name: resumequill_app_dev
+#    image: resume-quill-be:dev
 #    build: .
 #    ports:
 #      - "8080:8080"
