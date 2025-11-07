@@ -6,7 +6,7 @@ services:
     env_file:
       - .env.dev
 #  app:
-#    container_name: resumequill_app_dev
+#    container_name: resume-quill-be-dev
 #    image: resume-quill-be:dev
 #    build: .
 #    ports:

@@ -4,7 +4,7 @@ services:
     env_file:
       - .env
   app:
-    container_name: resumequill_app_prod
+    container_name: resume-quill-be-prod
     image: resume-quill-be:prod
     restart: unless-stopped
     build: .
