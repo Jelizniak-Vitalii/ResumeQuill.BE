@@ -1,8 +1,6 @@
 services:
   db:
     container_name: resume-quill-db-dev
-    ports:
-      - "127.0.0.1:5433:5432"
     env_file:
       - .env.dev
   app:
