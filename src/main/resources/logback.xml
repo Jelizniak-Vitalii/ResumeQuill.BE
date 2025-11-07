@@ -1,12 +1,33 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<configuration>
-    <root level="info">
-        <appender-ref ref="CONSOLE"/>
-    </root>
+<configuration scan="true">
+  <root level="info">
+    <appender-ref ref="CONSOLE"/>
+  </root>
 
-    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
-        <encoder>
-            <pattern>%d{yyyy-MM-dd HH:mm:ss} %-5level [%thread] %logger{36} - %msg%n</pattern>
-        </encoder>
-    </appender>
+  <property
+    name="CONSOLE_PATTERN"
+    value="%d{yyyy-MM-dd HH:mm:ss} %highlight(%-5level) [%thread] %logger{20} - %msg%n"
+  />
+
+  <turboFilter class="ch.qos.logback.classic.turbo.DuplicateMessageFilter">
+    <allowedRepetitions>3</allowedRepetitions>
+    <cacheSize>1000</cacheSize>
+  </turboFilter>
+
+  <!-- Консоль -->
+  <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder>
+      <pattern>${CONSOLE_PATTERN}</pattern>
+      <!-- Если всё же прилетит исключение, сделать стек коротким -->
+      <throwableProxyConverter class="ch.qos.logback.classic.spi.ShortenedThrowableConverter">
+        <maxDepthPerThrowable>5</maxDepthPerThrowable>
+        <maxLength>1024</maxLength>
+        <rootCauseFirst>true</rootCauseFirst>
+      </throwableProxyConverter>
+    </encoder>
+  </appender>
+
+  <logger name="org.springframework" level="WARN"/>
+  <logger name="org.apache" level="WARN"/>
+  <logger name="org.hibernate" level="WARN"/>
 </configuration>

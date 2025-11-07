@@ -72,7 +72,7 @@ public class AuthService {
 
     tokensDao.create(refreshToken);
 
-    logger.error("User logged in: {}", email);
+    logger.info("User logged in: {}", email);
 
     return new AuthResponseDto(accessToken, refreshToken.getToken());
   }
@@ -100,7 +100,7 @@ public class AuthService {
 
     tokensDao.create(refreshToken);
 
-    logger.error("New user registered: {}", registrationDto.getEmail());
+    logger.info("New user registered: {}", registrationDto.getEmail());
 
     return new AuthResponseDto(accessToken, refreshToken.getToken());
   }
@@ -123,7 +123,7 @@ public class AuthService {
 
     tokensDao.create(newRefreshToken);
 
-    logger.error("Refresh token rotated for userId: {}", refreshToken.getUserId());
+    logger.info("Refresh token rotated for userId: {}", refreshToken.getUserId());
 
     return new AuthResponseDto(accessToken, newRefreshToken.getToken());
   }

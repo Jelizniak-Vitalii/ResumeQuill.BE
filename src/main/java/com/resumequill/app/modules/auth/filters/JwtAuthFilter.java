@@ -17,7 +17,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
   private final TokenService tokenService;
 
   private static final List<String> PUBLIC = List.of(
-    "/api/v2/auth/**", "/public/**", "/health", "/actuator/**", "/docs/**"
+    "/api/auth/**", "/public/**", "/health", "/actuator/**", "/docs/**"
   );
 
   public JwtAuthFilter(TokenService tokenService) {
