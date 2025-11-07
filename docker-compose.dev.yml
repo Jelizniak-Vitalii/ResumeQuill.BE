@@ -1,0 +1,22 @@
+services:
+  db:
+    container_name: resume-quill-db-dev
+    ports:
+      - "5433:5432"
+    env_file:
+      - .env.dev
+  app:
+    container_name: resume-quill-be-dev
+    image: resume-quill-be:dev
+    restart: unless-stopped
+    build: .
+    ports:
+      - "127.0.0.1:8081:8080"
+    env_file:
+      - .env.dev
+    environment:
+      DB_URL: ${DB_URL}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRATION: ${JWT_EXPIRATION}
