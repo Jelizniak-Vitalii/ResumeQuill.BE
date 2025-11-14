@@ -1,10 +1,7 @@
 services:
   db:
-    container_name: resume-quill-db-dev
     env_file:
       - .env.dev
-    volumes:
-      - pgdata_dev:/var/lib/postgresql/data
   app:
     container_name: resume-quill-be-dev
     image: resume-quill-be:dev

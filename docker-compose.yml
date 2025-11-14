@@ -1,6 +1,7 @@
 services:
   db:
     image: postgres:16.4-bookworm
+    container_name: resume-quill-db
     restart: unless-stopped
     environment:
       POSTGRES_DB: ${DB_NAME}
