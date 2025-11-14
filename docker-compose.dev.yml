@@ -3,6 +3,8 @@ services:
     image: postgres:16.4-bookworm
     container_name: resume-quill-db-dev
     restart: unless-stopped
+    env_file:
+      - .env.dev
     environment:
       POSTGRES_DB: ${DB_NAME}
       POSTGRES_USER: ${DB_USER}
@@ -15,8 +17,6 @@ services:
       interval: 5s
       timeout: 3s
       retries: 10
-    env_file:
-      - .env.dev
   be-dev:
     container_name: resume-quill-be-dev
     image: resume-quill-be:dev
