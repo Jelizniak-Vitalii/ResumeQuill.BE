@@ -1,6 +1,5 @@
 services:
   db:
-    container_name: resume-quill-db-prod
     env_file:
       - .env
   app:
