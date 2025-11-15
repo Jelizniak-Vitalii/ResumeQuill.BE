@@ -15,6 +15,8 @@ services:
       interval: 5s
       timeout: 3s
       retries: 10
+    networks:
+      - resume-quill-dev-net
   be-dev:
     container_name: resume-quill-be-dev
     image: resume-quill-be:dev
