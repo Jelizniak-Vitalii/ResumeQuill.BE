@@ -1,8 +1,0 @@
-services:
-  db:
-    container_name: resumequill-db-prod
-  backend:
-    container_name: resume-quill-be-prod
-    image: resume-quill-be:prod
-    ports:
-      - "127.0.0.1:8080:8080"

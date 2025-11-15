@@ -28,6 +28,7 @@ public class DownloadResume {
   @PostMapping(value = "/pdf", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_PDF_VALUE)
   public void proxyJson(HttpServletRequest req, HttpServletResponse resp) throws Exception {
     String path = nodeUrl + "/api/resume";
+    logger.error("Downloading resume for user id: {} via {}", req.getParameter("userId"), path);
     byte[] body = req.getInputStream().readAllBytes();
 
     HttpURLConnection connection = (HttpURLConnection) new URL(path).openConnection();
