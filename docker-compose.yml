@@ -26,5 +26,11 @@ services:
     depends_on:
       db-prod:
         condition: service_healthy
+    networks:
+      - resume-quill-net
 volumes:
   pgdata_prod:
+
+networks:
+  resume-quill-net:
+    name: resume-quill-net

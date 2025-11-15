@@ -27,5 +27,11 @@ services:
         condition: service_healthy
     ports:
       - "127.0.0.1:8081:8080"
+    networks:
+      - resume-quill-dev-net
 volumes:
   pgdata_dev:
+
+networks:
+  resume-quill-dev-net:
+    name: resume-quill-dev-net
