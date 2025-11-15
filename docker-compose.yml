@@ -1,7 +1,7 @@
 services:
-  db:
+  db-dev:
     image: postgres:16.4-bookworm
-    container_name: resume-quill-db
+    container_name: resume-quill-db-dev
     restart: unless-stopped
     environment:
       POSTGRES_DB: ${DB_NAME}
@@ -9,11 +9,56 @@ services:
       POSTGRES_PASSWORD: ${DB_PASSWORD}
       TZ: Europe/Kyiv
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - pgdata_dev:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
+      test: [ "CMD-SHELL", "pg_isready -U $POSTGRES_USER -d $POSTGRES_DB" ]
       interval: 5s
       timeout: 3s
       retries: 10
+
+  be-dev:
+    container_name: resume-quill-be-dev
+    image: resume-quill-be:dev
+    build: .
+    restart: unless-stopped
+    env_file:
+      - .env.dev
+    depends_on:
+      db-dev:
+        condition: service_healthy
+    ports:
+      - "127.0.0.1:8081:8080"
+
+  db-prod:
+    image: postgres:16.4-bookworm
+    container_name: resumequill-db-prod
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      TZ: Europe/Kyiv
+    volumes:
+      - pgdata_prod:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U $POSTGRES_USER -d $POSTGRES_DB" ]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  be-prod:
+    container_name: resume-quill-be-prod
+    image: resume-quill-be:prod
+    build: .
+    restart: unless-stopped
+    env_file:
+      - .env
+    depends_on:
+      db-prod:
+        condition: service_healthy
+    ports:
+      - "127.0.0.1:8080:8080"
+
 volumes:
-  pgdata:
+  pgdata_dev:
+  pgdata_prod:
