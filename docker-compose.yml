@@ -30,6 +30,8 @@ services:
     depends_on:
       db-prod:
         condition: service_healthy
+    ports:
+      - "127.0.0.1:8080:8080"
     networks:
       - resume-quill-net
 volumes:
