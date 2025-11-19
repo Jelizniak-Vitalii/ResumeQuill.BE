@@ -45,7 +45,14 @@ public class DownloadResume {
 
     int status = connection.getResponseCode();
     resp.setStatus(status);
-    resp.setContentType("application/json");
+    String contentType = connection.getContentType();
+    if (contentType != null) {
+      resp.setContentType(contentType);
+    }
+    String contentDisposition = connection.getHeaderField("Content-Disposition");
+    if (contentDisposition != null) {
+      resp.setHeader("Content-Disposition", contentDisposition);
+    }
 
     try (InputStream in = status >= 400 ? connection.getErrorStream() : connection.getInputStream(); OutputStream out = resp.getOutputStream()) {
       if (in != null) {
