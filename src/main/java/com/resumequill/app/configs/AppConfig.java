@@ -20,7 +20,8 @@ import org.springframework.web.multipart.support.StandardServletMultipartResolve
   FlywayConfig.class,
 	SecurityConfig.class,
   ValidationConfig.class,
-  JacksonConfig.class
+  JacksonConfig.class,
+  MetricsConfig.class
 })
 public class AppConfig {
 //	@Bean

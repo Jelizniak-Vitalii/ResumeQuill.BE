@@ -6,7 +6,9 @@ import com.resumequill.app.common.annotations.NoApiPrefix;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import java.nio.charset.StandardCharsets;
 import org.springframework.web.servlet.config.annotation.*;
 
 import java.util.List;
@@ -43,6 +45,7 @@ public class WebConfig implements WebMvcConfigurer {
 
   @Override
   public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
+    converters.add(new StringHttpMessageConverter(StandardCharsets.UTF_8));
     converters.add(new MappingJackson2HttpMessageConverter());
   }
 

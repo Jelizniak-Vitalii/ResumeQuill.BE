@@ -1,11 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration scan="true">
-  <root level="info">
-    <appender-ref ref="CONSOLE"/>
-  </root>
 
   <property
-    name="CONSOLE_PATTERN"
+    name="LOG_PATTERN"
     value="%d{yyyy-MM-dd HH:mm:ss} %highlight(%-5level) [%thread] %logger{20} - %msg%n"
   />
 
@@ -14,12 +11,12 @@
     <cacheSize>1000</cacheSize>
   </turboFilter>
 
-  <!-- Консоль -->
+  <!-- CONSOLE -->
   <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
     <encoder>
-      <pattern>${CONSOLE_PATTERN}</pattern>
-      <!-- Если всё же прилетит исключение, сделать стек коротким -->
-      <throwableProxyConverter class="ch.qos.logback.classic.spi.ShortenedThrowableConverter">
+      <pattern>${LOG_PATTERN}</pattern>
+      <throwableProxyConverter
+        class="ch.qos.logback.classic.spi.ShortenedThrowableConverter">
         <maxDepthPerThrowable>5</maxDepthPerThrowable>
         <maxLength>1024</maxLength>
         <rootCauseFirst>true</rootCauseFirst>
@@ -27,7 +24,35 @@
     </encoder>
   </appender>
 
+  <!-- FILE -->
+  <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <file>/app/logs/backend.log</file>
+
+    <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+      <fileNamePattern>/app/logs/backend.%d{yyyy-MM-dd}.log</fileNamePattern>
+      <maxHistory>14</maxHistory>
+    </rollingPolicy>
+
+    <encoder>
+      <pattern>${LOG_PATTERN}</pattern>
+      <throwableProxyConverter
+        class="ch.qos.logback.classic.spi.ShortenedThrowableConverter">
+        <maxDepthPerThrowable>5</maxDepthPerThrowable>
+        <maxLength>1024</maxLength>
+        <rootCauseFirst>true</rootCauseFirst>
+      </throwableProxyConverter>
+    </encoder>
+  </appender>
+
+  <!-- Noise reduction -->
   <logger name="org.springframework" level="WARN"/>
   <logger name="org.apache" level="WARN"/>
   <logger name="org.hibernate" level="WARN"/>
+
+  <!-- SINGLE ROOT -->
+  <root level="INFO">
+    <appender-ref ref="CONSOLE"/>
+    <appender-ref ref="FILE"/>
+  </root>
+
 </configuration>
