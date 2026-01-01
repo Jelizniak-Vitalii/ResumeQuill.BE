@@ -1,21 +1,58 @@
 services:
-  db-local:
-    image: postgres:16.4-bookworm
+  db:
     container_name: resume-quill-db-local
-    restart: unless-stopped
-    environment:
-      POSTGRES_DB: ${DB_NAME}
-      POSTGRES_USER: ${DB_USER}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
-      TZ: Europe/Kyiv
-    volumes:
-      - pgdata_local:/var/lib/postgresql/data
-    healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U $POSTGRES_USER -d $POSTGRES_DB" ]
-      interval: 5s
-      timeout: 3s
-      retries: 10
     ports:
       - "127.0.0.1:5433:5432"
+
+  backend:
+    container_name: resume-quill-be-local
+    image: resume-quill-be:local
+    env_file:
+      - .env.local
+    ports:
+      - "127.0.0.1:8080:8080"
+    volumes:
+      - ./logs/local:/app/logs
+
+  promtail:
+    container_name: promtail-local
+    environment:
+      - ENV=local
+    ports:
+      - "127.0.0.1:9082:9080"
+    volumes:
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./promtail/promtail-config.yaml:/etc/promtail/config.yml
+    command: -config.file=/etc/promtail/config.yml -config.expand-env=true
+
+  loki:
+    container_name: loki-local
+    ports:
+      - "127.0.0.1:3102:3100"
+
+  prometheus:
+    container_name: prometheus-local
+    ports:
+      - "127.0.0.1:9092:9090"
+    volumes:
+      - ./prometheus/prometheus-local.yml:/etc/prometheus/prometheus.yml:ro
+
+  grafana:
+    container_name: grafana-local
+    volumes:
+      - ./grafana/provisioning/datasources/datasources-local.yaml:/etc/grafana/provisioning/datasources/datasources.yaml:ro
+    ports:
+      - "127.0.0.1:3002:3000"
+
 volumes:
-  pgdata_local:
+  pgdata:
+    name: pgdata_local
+  grafanadata:
+    name: grafanadata_local
+  lokidata:
+    name: lokidata_local
+
+networks:
+  resume-quill-net:
+    name: resume-quill-local-net

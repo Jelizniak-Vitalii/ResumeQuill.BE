@@ -1,41 +1,95 @@
 services:
-  db-prod:
+  db:
     image: postgres:16.4-bookworm
-    container_name: resume-quill-db-prod
+    container_name: resume-quill-db
     restart: unless-stopped
-    ports:
-      - "127.0.0.1:5432:5432"
     environment:
       POSTGRES_DB: ${DB_NAME}
       POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
       TZ: Europe/Kyiv
     volumes:
-      - pgdata_prod:/var/lib/postgresql/data
+      - pgdata:/var/lib/postgresql/data
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U $POSTGRES_USER -d $POSTGRES_DB" ]
+      test: [ "CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB" ]
       interval: 5s
       timeout: 3s
       retries: 10
     networks:
       - resume-quill-net
+    logging:
+      driver: json-file
+      options:
+        tag: "{{.ImageName}}|{{.Name}}|{{.ImageFullID}}|{{.FullID}}"
 
-  be-prod:
-    container_name: resume-quill-be-prod
-    image: resume-quill-be:prod
+  backend:
+    container_name: resume-quill-be
+    image: resume-quill-be:latest
     build: .
     restart: unless-stopped
     env_file:
       - .env
     depends_on:
-      db-prod:
+      db:
         condition: service_healthy
-    ports:
-      - "127.0.0.1:8080:8080"
+    volumes:
+      - ./logs/prod:/app/logs
     networks:
       - resume-quill-net
+    logging:
+      driver: json-file
+      options:
+        tag: "{{.ImageName}}|{{.Name}}|{{.ImageFullID}}|{{.FullID}}"
+
+  promtail:
+    image: grafana/promtail:latest
+    container_name: promtail
+    environment:
+      - ENV=prod
+    volumes:
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./promtail/promtail-config.yaml:/etc/promtail/config.yml
+    command: -config.file=/etc/promtail/config.yml -config.expand-env=true
+    privileged: true
+    networks:
+      - resume-quill-net
+
+  loki:
+    image: grafana/loki:latest
+    container_name: loki
+    volumes:
+      - ./loki-config.yaml:/etc/loki/local-config.yaml
+      - lokidata:/loki
+    networks:
+      - resume-quill-net
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheusdata:/prometheus
+    networks:
+      - resume-quill-net
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - grafanadata:/var/lib/grafana
+      - ./grafana/provisioning/datasources/datasources.yaml:/etc/grafana/provisioning/datasources/datasources.yaml:ro
+    networks:
+      - resume-quill-net
+
 volumes:
-  pgdata_prod:
+  pgdata:
+  grafanadata:
+  prometheusdata:
+  lokidata:
 
 networks:
   resume-quill-net:

@@ -1,41 +1,58 @@
 services:
-  db-dev:
-    image: postgres:16.4-bookworm
+  db:
     container_name: resume-quill-db-dev
-    restart: unless-stopped
     ports:
       - "127.0.0.1:5434:5432"
-    environment:
-      POSTGRES_DB: ${DB_NAME}
-      POSTGRES_USER: ${DB_USER}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
-      TZ: Europe/Kyiv
-    volumes:
-      - pgdata_dev:/var/lib/postgresql/data
-    healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U $POSTGRES_USER -d $POSTGRES_DB" ]
-      interval: 5s
-      timeout: 3s
-      retries: 10
-    networks:
-      - resume-quill-dev-net
-  be-dev:
+
+  backend:
     container_name: resume-quill-be-dev
     image: resume-quill-be:dev
-    build: .
-    restart: unless-stopped
     env_file:
       - .env.dev
-    depends_on:
-      db-dev:
-        condition: service_healthy
     ports:
       - "127.0.0.1:8081:8080"
-    networks:
-      - resume-quill-dev-net
+    volumes:
+      - ./logs/dev:/app/logs
+
+  promtail:
+    container_name: promtail-dev
+    environment:
+      - ENV=dev
+    ports:
+      - "127.0.0.1:9081:9080"
+    volumes:
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./promtail/promtail-config.yaml:/etc/promtail/config.yml
+    command: -config.file=/etc/promtail/config.yml -config.expand-env=true
+
+  loki:
+    container_name: loki-dev
+    ports:
+      - "127.0.0.1:3101:3100"
+
+  prometheus:
+    container_name: prometheus-dev
+    ports:
+      - "127.0.0.1:9091:9090"
+    volumes:
+      - ./prometheus/prometheus-dev.yml:/etc/prometheus/prometheus.yml:ro
+
+  grafana:
+    container_name: grafana-dev
+    volumes:
+      - ./grafana/provisioning/datasources/datasources-dev.yaml:/etc/grafana/provisioning/datasources/datasources.yaml:ro
+    ports:
+      - "127.0.0.1:3001:3000"
+
 volumes:
-  pgdata_dev:
+  pgdata:
+    name: pgdata_dev
+  grafanadata:
+    name: grafanadata_dev
+  lokidata:
+    name: lokidata_dev
 
 networks:
-  resume-quill-dev-net:
+  resume-quill-net:
     name: resume-quill-dev-net
