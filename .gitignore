@@ -40,4 +40,6 @@ build/
 
 .env*
 
+logs/
+
 .claude/*
