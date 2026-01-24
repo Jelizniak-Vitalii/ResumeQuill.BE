@@ -8,6 +8,7 @@ import com.resumequill.app.modules.auth.services.TokenService;
 import com.resumequill.app.modules.auth.utils.CookieUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.slf4j.MDC;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -56,8 +57,22 @@ public class JwtInterceptor implements HandlerInterceptor {
       throw new UnauthorizedException(Messages.AUTH_PERMISSION_UNAUTHORIZED);
     }
 
-    request.setAttribute("userId", tokenService.extractUserId(token));
+    String userId = String.valueOf(tokenService.extractUserId(token));
+
+    MDC.put("userId", userId);
+
+    request.setAttribute("userId", userId);
 
     return true;
+  }
+
+  @Override
+  public void afterCompletion(
+    HttpServletRequest request,
+    HttpServletResponse response,
+    Object handler,
+    Exception ex
+  ) {
+    MDC.remove("userId");
   }
 }

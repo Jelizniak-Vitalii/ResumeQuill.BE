@@ -1,41 +1,43 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<configuration scan="true">
+<configuration>
 
-  <property
-    name="LOG_PATTERN"
-    value="%d{yyyy-MM-dd HH:mm:ss} %highlight(%-5level) [%thread] %logger{20} - %msg%n"
-  />
+  <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
+      <providers>
+        <logLevel />
 
-  <!-- CONSOLE -->
-  <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
-    <encoder>
-      <pattern>${LOG_PATTERN}</pattern>
-      <throwableProxyConverter
-        class="ch.qos.logback.classic.spi.ShortenedThrowableConverter">
-        <maxDepthPerThrowable>5</maxDepthPerThrowable>
-        <maxLength>1024</maxLength>
-        <rootCauseFirst>true</rootCauseFirst>
-      </throwableProxyConverter>
-    </encoder>
-  </appender>
+        <!-- timestamp -->
+        <timestamp>
+          <timeZone>Europe/Kiev</timeZone>
+          <pattern>yyyy-MM-dd HH:mm:ss</pattern>
+        </timestamp>
 
-  <!-- FILE -->
-  <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-    <file>/app/logs/backend.log</file>
+        <!-- level, logger, thread -->
+        <loggerName />
+        <threadName />
 
-    <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-      <fileNamePattern>/app/logs/backend.%d{yyyy-MM-dd}.log</fileNamePattern>
-      <maxHistory>14</maxHistory>
-    </rollingPolicy>
+        <!-- message -->
+        <message />
 
-    <encoder>
-      <pattern>${LOG_PATTERN}</pattern>
-      <throwableProxyConverter
-        class="ch.qos.logback.classic.spi.ShortenedThrowableConverter">
-        <maxDepthPerThrowable>5</maxDepthPerThrowable>
-        <maxLength>1024</maxLength>
-        <rootCauseFirst>true</rootCauseFirst>
-      </throwableProxyConverter>
+        <!-- stacktrace -->
+        <stackTrace />
+
+        <!-- MDC -->
+        <mdc>
+          <includeMdcKeyName>requestId</includeMdcKeyName>
+          <includeMdcKeyName>userId</includeMdcKeyName>
+          <includeMdcKeyName>method</includeMdcKeyName>
+          <includeMdcKeyName>path</includeMdcKeyName>
+          <includeMdcKeyName>status</includeMdcKeyName>
+          <includeMdcKeyName>durationMs</includeMdcKeyName>
+        </mdc>
+
+        <!-- static fields -->
+        <globalCustomFields>
+          {"service":"resume-quill-be","env":"${ENV:-prod}"}
+        </globalCustomFields>
+
+      </providers>
     </encoder>
   </appender>
 
@@ -44,10 +46,9 @@
   <logger name="org.apache" level="WARN"/>
   <logger name="org.hibernate" level="WARN"/>
 
-  <!-- SINGLE ROOT -->
   <root level="INFO">
-    <appender-ref ref="CONSOLE"/>
-    <appender-ref ref="FILE"/>
+    <appender-ref ref="STDOUT"/>
   </root>
 
 </configuration>
+
