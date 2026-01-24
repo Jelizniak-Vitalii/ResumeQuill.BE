@@ -52,6 +52,7 @@ services:
     image: prom/prometheus:latest
     volumes:
       - prometheusdata:/prometheus
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
     networks:
       - resume-quill-net
 
@@ -62,6 +63,7 @@ services:
       - GF_SECURITY_ADMIN_PASSWORD=admin
     volumes:
       - grafanadata:/var/lib/grafana
+      - ./grafana/provisioning/datasources/datasources.yaml:/etc/grafana/provisioning/datasources/datasources.yaml:ro
     networks:
       - resume-quill-net
 

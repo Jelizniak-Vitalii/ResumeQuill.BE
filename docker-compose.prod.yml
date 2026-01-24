@@ -18,13 +18,9 @@ services:
     container_name: grafana
     ports:
       - "127.0.0.1:3000:3000"
-    volumes:
-      - ./grafana/provisioning/datasources/datasources.yaml:/etc/grafana/provisioning/datasources/datasources.yaml:ro
 
   prometheus:
     container_name: prometheus
-    volumes:
-      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
 
 volumes:
   pgdata:
