@@ -28,14 +28,19 @@ services:
 
 volumes:
   pgdata:
+    external: true
     name: pgdata_dev
   grafanadata:
+    external: true
     name: grafanadata_dev
   lokidata:
+    external: true
     name: lokidata_dev
   prometheusdata:
+    external: true
     name: prometheusdata_dev
 
 networks:
   resume-quill-net:
+    external: true
     name: resume-quill-dev-net
