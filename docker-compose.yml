@@ -105,4 +105,5 @@ volumes:
 
 networks:
   resume-quill-net:
+    external: true
     name: resume-quill-net
