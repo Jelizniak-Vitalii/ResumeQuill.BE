@@ -32,11 +32,24 @@ scrape_configs:
       - target_label: env
         replacement: ${ENV:-prod}
 
-      - target_label: job
-        replacement: resume-quill
+      - target_label: service_name
+        replacement: resume-quill-be
 
     pipeline_stages:
-      - docker: {}
+      - docker: { }
+
+      - json:
+          expressions:
+            level: level
+            message: message
+            requestId: requestId
+            method: method
+            path: path
+            userId: userId
+
+      - labels:
+          level:
+          method:
 
       - output:
-          source: log
+          source: message
