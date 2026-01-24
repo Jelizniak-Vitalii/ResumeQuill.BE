@@ -25,7 +25,6 @@ services:
   backend:
     container_name: resume-quill-be
     image: resume-quill-be:latest
-    build: .
     restart: unless-stopped
     env_file:
       - .env
@@ -87,6 +86,8 @@ services:
 
 volumes:
   pgdata:
+    external: true
+    name: pgdata_prod
   grafanadata:
   prometheusdata:
   lokidata:

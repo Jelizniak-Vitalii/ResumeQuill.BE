@@ -3,6 +3,7 @@ set -e
 
 git pull
 
-docker compose -p resumequill-be-prod -f docker-compose.yml up -d --build
+docker compose -p resumequill-be-prod pull
+docker compose -p resumequill-be-prod up -d --build
 
-docker image prune -f
+docker image prune -f --filter "until=168h"
