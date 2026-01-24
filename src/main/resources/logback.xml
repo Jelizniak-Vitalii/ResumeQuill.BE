@@ -4,20 +4,25 @@
   <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
     <encoder class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
       <providers>
-        <logLevel />
+        <logLevel>
+          <fieldName>Level</fieldName>
+        </logLevel>
 
-        <!-- timestamp -->
         <timestamp>
-          <timeZone>Europe/Kiev</timeZone>
+          <fieldName>Time/UTC</fieldName>
+          <timeZone>UTC</timeZone>
           <pattern>yyyy-MM-dd HH:mm:ss</pattern>
         </timestamp>
 
-        <!-- level, logger, thread -->
-        <loggerName />
-        <threadName />
+        <message>
+          <fieldName>Message</fieldName>
+        </message>
 
-        <!-- message -->
-        <message />
+        <pattern>
+          <pattern>
+            {"Logger":"%logger{0}"}
+          </pattern>
+        </pattern>
 
         <!-- stacktrace -->
         <stackTrace />
