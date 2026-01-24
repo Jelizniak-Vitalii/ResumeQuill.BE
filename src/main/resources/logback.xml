@@ -6,11 +6,6 @@
     value="%d{yyyy-MM-dd HH:mm:ss} %highlight(%-5level) [%thread] %logger{20} - %msg%n"
   />
 
-  <turboFilter class="ch.qos.logback.classic.turbo.DuplicateMessageFilter">
-    <allowedRepetitions>3</allowedRepetitions>
-    <cacheSize>1000</cacheSize>
-  </turboFilter>
-
   <!-- CONSOLE -->
   <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
     <encoder>
