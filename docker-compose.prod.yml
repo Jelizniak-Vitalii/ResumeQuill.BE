@@ -1,0 +1,46 @@
+services:
+  db:
+    container_name: resume-quill-db
+    ports:
+      - "127.0.0.1:5432:5432"
+
+  backend:
+    container_name: resume-quill-be
+    image: resume-quill-be:prod
+    ports:
+      - "127.0.0.1:8080:8080"
+    env_file:
+      - .env
+    volumes:
+      - ./logs/prod:/app/logs
+
+  grafana:
+    container_name: grafana
+    ports:
+      - "127.0.0.1:3000:3000"
+    volumes:
+      - ./grafana/provisioning/datasources/datasources.yaml:/etc/grafana/provisioning/datasources/datasources.yaml:ro
+
+  prometheus:
+    container_name: prometheus
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+
+volumes:
+  pgdata:
+    external: true
+    name: pgdata_prod
+  grafanadata:
+    external: true
+    name: grafana_data_prod
+  lokidata:
+    external: true
+    name: loki_data_prod
+  prometheusdata:
+    external: true
+    name: prometheus_data_prod
+
+networks:
+  resume-quill-net:
+    external: true
+    name: resume-quill-net

@@ -14,30 +14,17 @@ services:
     volumes:
       - ./logs/dev:/app/logs
 
-  promtail:
-    container_name: promtail-dev
-    environment:
-      - ENV=dev
+  grafana:
+    container_name: grafana-dev
+    ports:
+      - "127.0.0.1:3001:3000"
     volumes:
-      - /var/lib/docker/containers:/var/lib/docker/containers:ro
-      - /var/run/docker.sock:/var/run/docker.sock
-      - ./promtail/promtail-config.yaml:/etc/promtail/config.yml
-    command: -config.file=/etc/promtail/config.yml -config.expand-env=true
-
-  loki:
-    container_name: loki-dev
+      - ./grafana/provisioning/datasources/datasources-dev.yaml:/etc/grafana/provisioning/datasources/datasources.yaml:ro
 
   prometheus:
     container_name: prometheus-dev
     volumes:
       - ./prometheus/prometheus-dev.yml:/etc/prometheus/prometheus.yml:ro
-
-  grafana:
-    container_name: grafana-dev
-    volumes:
-      - ./grafana/provisioning/datasources/datasources-dev.yaml:/etc/grafana/provisioning/datasources/datasources.yaml:ro
-    ports:
-      - "127.0.0.1:3001:3000"
 
 volumes:
   pgdata:
@@ -46,6 +33,8 @@ volumes:
     name: grafanadata_dev
   lokidata:
     name: lokidata_dev
+  prometheusdata:
+    name: prometheusdata_dev
 
 networks:
   resume-quill-net:
