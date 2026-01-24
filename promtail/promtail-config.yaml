@@ -15,18 +15,12 @@ scrape_configs:
         refresh_interval: 5s
 
     relabel_configs:
-      # только нужный compose-проект
-      - source_labels: [__meta_docker_container_label_com_docker_compose_project]
-        regex: resumequill-be-${ENV:-prod}
-        action: keep
-
-      # только backend
-      - source_labels: [__meta_docker_container_label_com_docker_compose_service]
+      # только backend-сервис
+      - source_labels: [ __meta_docker_compose_service ]
         regex: backend
         action: keep
 
-      # labels
-      - source_labels: [__meta_docker_container_name]
+      - source_labels: [ __meta_docker_container_name ]
         target_label: container
 
       - target_label: env
