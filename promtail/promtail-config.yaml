@@ -1,13 +1,3 @@
-server:
-  http_listen_port: 9080
-  grpc_listen_port: 0
-
-positions:
-  filename: /tmp/positions.yaml
-
-clients:
-  - url: http://loki:3100/loki/api/v1/push
-
 scrape_configs:
   - job_name: resume-quill
     docker_sd_configs:
@@ -15,17 +5,14 @@ scrape_configs:
         refresh_interval: 5s
 
     relabel_configs:
-      # только нужный compose-проект
       - source_labels: [__meta_docker_container_label_com_docker_compose_project]
         regex: resumequill-be-${ENV:-prod}
         action: keep
 
-      # только backend
       - source_labels: [__meta_docker_container_label_com_docker_compose_service]
         regex: backend
         action: keep
 
-      # labels
       - source_labels: [__meta_docker_container_name]
         target_label: container
 
@@ -36,20 +23,13 @@ scrape_configs:
         replacement: resume-quill-be
 
     pipeline_stages:
-      - docker: { }
+      - docker: {}
 
       - json:
           expressions:
             level: level
-            message: message
-            requestId: requestId
             method: method
-            path: path
-            userId: userId
 
       - labels:
           level:
           method:
-
-      - output:
-          source: message
