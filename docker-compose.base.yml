@@ -39,7 +39,6 @@ services:
     networks:
       - resume-quill-net
 
-
   loki:
     image: grafana/loki:latest
     volumes:
