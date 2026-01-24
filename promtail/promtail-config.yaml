@@ -39,7 +39,12 @@ scrape_configs:
           expressions:
             level: level
             method: method
+            message: message
+            path: path
+            userId: userId
+            requestId: requestId
 
       - labels:
           level:
           method:
+
