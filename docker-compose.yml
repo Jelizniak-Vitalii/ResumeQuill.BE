@@ -99,6 +99,9 @@ volumes:
   lokidata:
     external: true
     name: loki_data_prod
+  prometheusdata:
+    external: true
+    name: prometheus_data_prod
 
 networks:
   resume-quill-net:
