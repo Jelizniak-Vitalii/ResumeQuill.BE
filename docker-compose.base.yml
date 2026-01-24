@@ -31,14 +31,14 @@ services:
 
   promtail:
     image: grafana/promtail:latest
+    restart: unless-stopped
     volumes:
-      - /var/lib/docker/containers:/var/lib/docker/containers:ro
       - /var/run/docker.sock:/var/run/docker.sock
-      - ./promtail/promtail-config.yaml:/etc/promtail/config.yml
+      - ./promtail/promtail-config.yaml:/etc/promtail/config.yml:ro
     command: -config.file=/etc/promtail/config.yml -config.expand-env=true
-    privileged: true
     networks:
       - resume-quill-net
+
 
   loki:
     image: grafana/loki:latest
