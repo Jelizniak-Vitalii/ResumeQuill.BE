@@ -9,8 +9,8 @@
         </logLevel>
 
         <timestamp>
-          <fieldName>Time/UTC</fieldName>
-          <timeZone>UTC</timeZone>
+          <fieldName>Time/Kiev</fieldName>
+          <timeZone>Europe/Kiev</timeZone>
           <pattern>yyyy-MM-dd HH:mm:ss</pattern>
         </timestamp>
 
