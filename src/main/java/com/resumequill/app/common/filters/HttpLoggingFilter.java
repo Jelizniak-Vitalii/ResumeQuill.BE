@@ -22,6 +22,7 @@ public class HttpLoggingFilter extends OncePerRequestFilter {
     long start = System.currentTimeMillis();
 
     MDC.put("requestId", UUID.randomUUID().toString());
+    MDC.put("userId", "null");
     MDC.put("method", request.getMethod());
     MDC.put("path", request.getRequestURI());
 
