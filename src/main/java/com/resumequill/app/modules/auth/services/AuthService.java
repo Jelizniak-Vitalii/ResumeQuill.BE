@@ -3,47 +3,64 @@ package com.resumequill.app.modules.auth.services;
 import com.resumequill.app.common.constants.Messages;
 import com.resumequill.app.common.exceptions.UnauthorizedException;
 import com.resumequill.app.modules.auth.constants.AuthConstants;
+import com.resumequill.app.modules.auth.dao.PasswordResetTokenDao;
 import com.resumequill.app.modules.auth.dao.TokensDao;
 import com.resumequill.app.modules.auth.dto.AuthResponseDto;
 import com.resumequill.app.modules.auth.dto.RegistrationDto;
+import com.resumequill.app.modules.auth.models.PasswordResetToken;
 import com.resumequill.app.modules.auth.models.RefreshToken;
 import com.resumequill.app.modules.auth.utils.CookieUtils;
 import com.resumequill.app.modules.users.models.UserModel;
 import com.resumequill.app.modules.users.services.UsersService;
+import com.resumequill.app.mail.EmailService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Optional;
+import java.util.UUID;
 
 import com.resumequill.app.modules.auth.models.GoogleUserInfo;
 
 @Service
 public class AuthService {
+  private static final int PASSWORD_RESET_TOKEN_EXPIRY_HOURS = 1;
+
   private final Logger logger = LoggerFactory.getLogger(AuthService.class);
   private final PasswordEncoder passwordEncoder;
   private final TokenService tokenService;
   private final UsersService usersService;
   private final TokensDao tokensDao;
   private final GoogleService googleService;
+  private final PasswordResetTokenDao passwordResetTokenDao;
+  private final EmailService emailService;
+  private final String frontendUrl;
 
   public AuthService(
     PasswordEncoder passwordEncoder,
     TokenService tokenService,
     UsersService usersService,
     TokensDao tokensDao,
-    GoogleService googleService
+    GoogleService googleService,
+    PasswordResetTokenDao passwordResetTokenDao,
+    EmailService emailService,
+    @Value("${app.frontend.url}") String frontendUrl
   ) {
     this.passwordEncoder = passwordEncoder;
     this.tokenService = tokenService;
     this.usersService = usersService;
     this.tokensDao = tokensDao;
     this.googleService = googleService;
+    this.passwordResetTokenDao = passwordResetTokenDao;
+    this.emailService = emailService;
+    this.frontendUrl = frontendUrl;
   }
 
   private RefreshToken validateRefreshToken(String token) {
@@ -195,5 +212,54 @@ public class AuthService {
   public void clearCookie(HttpServletResponse res) {
     CookieUtils.clearCookie(res, AuthConstants.ACCESS_TOKEN);
     CookieUtils.clearCookie(res, AuthConstants.REFRESH_TOKEN);
+  }
+
+  @Transactional
+  public void forgotPassword(String email) {
+    UserModel user = usersService.getUserByEmail(email);
+
+    if (user == null) {
+      logger.warn("Password reset requested for non-existent email: {}", email);
+      return;
+    }
+
+    if (user.getPassword() == null) {
+      logger.warn("Password reset requested for OAuth-only user: {}", email);
+      return;
+    }
+
+    passwordResetTokenDao.deleteByUserId(user.getId());
+
+    PasswordResetToken resetToken = new PasswordResetToken();
+    resetToken.setUserId(user.getId());
+    resetToken.setToken(UUID.randomUUID().toString());
+    resetToken.setExpiresAt(Instant.now().plus(PASSWORD_RESET_TOKEN_EXPIRY_HOURS, ChronoUnit.HOURS));
+
+    passwordResetTokenDao.create(resetToken);
+
+    String resetLink = frontendUrl + "/reset-password?token=" + resetToken.getToken();
+    emailService.sendPasswordResetEmail(email, resetLink);
+
+    logger.info("Password reset email sent to: {}", email);
+  }
+
+  @Transactional
+  public void resetPassword(String token, String newPassword) {
+    PasswordResetToken resetToken = passwordResetTokenDao.findByToken(token)
+      .orElseThrow(() -> {
+        logger.error("Invalid password reset token: {}", token);
+        return new UnauthorizedException("Invalid or expired reset token");
+      });
+
+    if (resetToken.getExpiresAt().isBefore(Instant.now())) {
+      passwordResetTokenDao.deleteByToken(token);
+      logger.error("Expired password reset token: {}", token);
+      throw new UnauthorizedException("Invalid or expired reset token");
+    }
+
+    usersService.updatePassword(resetToken.getUserId(), passwordEncoder.encode(newPassword));
+    passwordResetTokenDao.deleteByToken(token);
+
+    logger.info("Password reset successful for userId: {}", resetToken.getUserId());
   }
 }

@@ -57,4 +57,9 @@ public class UsersService {
   public void linkGoogleAccount(int userId, String googleId) {
     userDao.linkGoogleAccount(userId, googleId);
   }
+
+  public void updatePassword(int userId, String encodedPassword) {
+    userDao.updatePassword(userId, encodedPassword);
+    logger.info("Password updated");
+  }
 }

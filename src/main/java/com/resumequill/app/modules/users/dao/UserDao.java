@@ -72,4 +72,9 @@ public class UserDao {
     String sql = "UPDATE users SET google_id = ? WHERE id = ?";
     jdbcTemplate.update(sql, googleId, userId);
   }
+
+  public void updatePassword(int userId, String encodedPassword) {
+    String sql = "UPDATE users SET password = ? WHERE id = ?";
+    jdbcTemplate.update(sql, encodedPassword, userId);
+  }
 }
