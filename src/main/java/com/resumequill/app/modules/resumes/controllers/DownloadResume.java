@@ -58,10 +58,10 @@ public class DownloadResume {
       if (in != null) {
         in.transferTo(out);
 
-        logger.info("Downloaded resume for user id: {}", req.getParameter("userId"));
+        logger.info("Downloaded resume");
       }
     } catch (Exception e) {
-      logger.error("Error while downloading resume for user id: {}", req.getParameter("userId"), e);
+      logger.error("Error while downloading resume", e);
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Error happened while downloading resume");
     } finally {
       connection.disconnect();

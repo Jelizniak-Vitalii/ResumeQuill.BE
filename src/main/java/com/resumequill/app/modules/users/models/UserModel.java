@@ -16,4 +16,5 @@ public class UserModel {
   private String lastName;
   private String image;
   private String lang;
+  private String googleId;
 }

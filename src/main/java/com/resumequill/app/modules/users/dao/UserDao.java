@@ -55,4 +55,21 @@ public class UserDao {
 
     jdbcTemplate.update(sql, user.getEmail(), user.getPhone(), user.getFirstName(), user.getLastName(), user.getId());
   }
+
+  public UserModel findByGoogleId(String googleId) {
+    String sql = "SELECT * FROM users WHERE google_id = ?";
+    List<UserModel> users = jdbcTemplate.query(sql, new UserMapper(), googleId);
+    return users.isEmpty() ? null : users.getFirst();
+  }
+
+  public Integer createOAuthUser(UserModel user) {
+    String sql = "INSERT INTO users (email, first_name, last_name, google_id, image) VALUES (?, ?, ?, ?, ?) RETURNING id";
+    return jdbcTemplate.queryForObject(sql, Integer.class,
+      user.getEmail(), user.getFirstName(), user.getLastName(), user.getGoogleId(), user.getImage());
+  }
+
+  public void linkGoogleAccount(int userId, String googleId) {
+    String sql = "UPDATE users SET google_id = ? WHERE id = ?";
+    jdbcTemplate.update(sql, googleId, userId);
+  }
 }

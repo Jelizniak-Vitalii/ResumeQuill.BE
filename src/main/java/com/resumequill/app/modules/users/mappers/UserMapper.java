@@ -19,6 +19,7 @@ public class UserMapper implements RowMapper<UserModel> {
     user.setLastName(rs.getString("last_name"));
     user.setImage(rs.getString("image"));
     user.setLang(rs.getString("lang"));
+    user.setGoogleId(rs.getString("google_id"));
 
     return user;
   }

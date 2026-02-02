@@ -45,4 +45,16 @@ public class UsersService {
 
     logger.info("Updating user lang for user id: {}", userId);
   }
+
+  public UserModel getUserByGoogleId(String googleId) {
+    return userDao.findByGoogleId(googleId);
+  }
+
+  public int createOAuthUser(UserModel user) {
+    return userDao.createOAuthUser(user);
+  }
+
+  public void linkGoogleAccount(int userId, String googleId) {
+    userDao.linkGoogleAccount(userId, googleId);
+  }
 }

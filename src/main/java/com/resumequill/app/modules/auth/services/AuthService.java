@@ -21,6 +21,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Instant;
 import java.util.Optional;
 
+import com.resumequill.app.modules.auth.models.GoogleUserInfo;
+
 @Service
 public class AuthService {
   private final Logger logger = LoggerFactory.getLogger(AuthService.class);
@@ -28,17 +30,20 @@ public class AuthService {
   private final TokenService tokenService;
   private final UsersService usersService;
   private final TokensDao tokensDao;
+  private final GoogleService googleService;
 
   public AuthService(
     PasswordEncoder passwordEncoder,
     TokenService tokenService,
     UsersService usersService,
-    TokensDao tokensDao
+    TokensDao tokensDao,
+    GoogleService googleService
   ) {
     this.passwordEncoder = passwordEncoder;
     this.tokenService = tokenService;
     this.usersService = usersService;
     this.tokensDao = tokensDao;
+    this.googleService = googleService;
   }
 
   private RefreshToken validateRefreshToken(String token) {
@@ -110,6 +115,44 @@ public class AuthService {
     logger.error("Logging out token: {}", token);
 
     tokensDao.deleteByToken(token);
+  }
+
+  @Transactional
+  public AuthResponseDto loginWithGoogle(String idToken, String ip, String userAgent) {
+    GoogleUserInfo userInfo = googleService.verifyIdToken(idToken);
+
+    UserModel user = usersService.getUserByGoogleId(userInfo.googleId());
+
+    if (user == null) {
+      user = usersService.getUserByEmail(userInfo.email());
+
+      if (user != null) {
+        usersService.linkGoogleAccount(user.getId(), userInfo.googleId());
+        logger.info("Linked Google account to existing user: {}", userInfo.email());
+      } else {
+        UserModel newUser = new UserModel();
+        newUser.setEmail(userInfo.email());
+        newUser.setFirstName(userInfo.firstName());
+        newUser.setLastName(userInfo.lastName());
+        newUser.setGoogleId(userInfo.googleId());
+        newUser.setImage(userInfo.picture());
+
+        int userId = usersService.createOAuthUser(newUser);
+        newUser.setId(userId);
+        user = newUser;
+
+        logger.info("Created new user via Google OAuth: {}", userInfo.email());
+      }
+    }
+
+    String accessToken = tokenService.createAccessToken(user.getId());
+    RefreshToken refreshToken = tokenService.createRefreshToken(user.getId(), ip, userAgent);
+
+    tokensDao.create(refreshToken);
+
+    logger.info("User logged in via Google: {}", userInfo.email());
+
+    return new AuthResponseDto(accessToken, refreshToken.getToken());
   }
 
   @Transactional
