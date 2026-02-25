@@ -46,6 +46,55 @@
     </encoder>
   </appender>
 
+  <appender name="FILE_JSON" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <file>/app/logs/backend.log</file>
+    <append>true</append>
+
+    <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+      <fileNamePattern>/app/logs/backend.%d{yyyy-MM-dd}.log</fileNamePattern>
+      <maxHistory>14</maxHistory>
+    </rollingPolicy>
+
+    <encoder class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
+      <providers>
+        <logLevel>
+          <fieldName>Level</fieldName>
+        </logLevel>
+
+        <timestamp>
+          <fieldName>Time/Kiev</fieldName>
+          <timeZone>Europe/Kiev</timeZone>
+          <pattern>yyyy-MM-dd HH:mm:ss</pattern>
+        </timestamp>
+
+        <message>
+          <fieldName>Message</fieldName>
+        </message>
+
+        <pattern>
+          <pattern>
+            {"Logger":"%logger{0}"}
+          </pattern>
+        </pattern>
+
+        <stackTrace />
+
+        <mdc>
+          <includeMdcKeyName>requestId</includeMdcKeyName>
+          <includeMdcKeyName>userId</includeMdcKeyName>
+          <includeMdcKeyName>method</includeMdcKeyName>
+          <includeMdcKeyName>path</includeMdcKeyName>
+          <includeMdcKeyName>status</includeMdcKeyName>
+          <includeMdcKeyName>durationMs</includeMdcKeyName>
+        </mdc>
+
+        <globalCustomFields>
+          {"service":"resume-quill-be","env":"${ENV:-prod}"}
+        </globalCustomFields>
+      </providers>
+    </encoder>
+  </appender>
+
   <!-- Noise reduction -->
   <logger name="org.springframework" level="WARN"/>
   <logger name="org.apache" level="WARN"/>
@@ -53,6 +102,7 @@
 
   <root level="INFO">
     <appender-ref ref="STDOUT"/>
+    <appender-ref ref="FILE_JSON"/>
   </root>
 
 </configuration>
