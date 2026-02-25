@@ -22,6 +22,8 @@ services:
   promtail:
     environment:
       - ENV=prod
+    volumes:
+      - ./logs/prod:/var/log/resumequill:ro
 
   prometheus:
     container_name: prometheus
